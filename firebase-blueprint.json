@@ -1,0 +1,202 @@
+{
+  "entities": {
+    "Portal": {
+      "title": "Attendance Portal",
+      "description": "A self-serve company attendance portal with branding, hashed role passwords, user-configured Realtime Database connection, and shared email access list.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique portal identifier matching document ID",
+          "minLength": 4,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the portal creator",
+          "minLength": 4,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Normalized lowercase email of the portal creator",
+          "minLength": 5,
+          "maxLength": 254
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "Display name of the portal creator",
+          "maxLength": 100
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company or organization display name",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "companySubtitle": {
+          "type": "string",
+          "description": "Optional registered office address or short tagline",
+          "maxLength": 200
+        },
+        "companyLogo": {
+          "type": "string",
+          "description": "Optional compressed company logo data URL (PNG/JPEG/WebP)",
+          "maxLength": 260000
+        },
+        "adminHash": {
+          "type": "string",
+          "description": "SHA-256 salted hash of the Admin role password",
+          "minLength": 16,
+          "maxLength": 128
+        },
+        "supervisorHash": {
+          "type": "string",
+          "description": "SHA-256 salted hash of the Supervisor role password",
+          "minLength": 16,
+          "maxLength": 128
+        },
+        "inchargeHash": {
+          "type": "string",
+          "description": "SHA-256 salted hash of the Site In-Charge role password",
+          "minLength": 16,
+          "maxLength": 128
+        },
+        "rtdbUrl": {
+          "type": "string",
+          "description": "User-configured Firebase Realtime Database URL",
+          "minLength": 12,
+          "maxLength": 300
+        },
+        "rtdbProjectId": {
+          "type": "string",
+          "description": "Firebase project ID extracted from the Realtime Database URL",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "backupRtdbUrl": {
+          "type": "string",
+          "description": "Optional secondary Firebase Realtime Database URL for 15-day backup mirroring",
+          "maxLength": 300
+        },
+        "storageBucket": {
+          "type": "string",
+          "description": "Optional Firebase Storage bucket for site photo backups",
+          "maxLength": 200
+        },
+        "sharedWithEmails": {
+          "type": "array",
+          "description": "Bounded list (max 50) of verified lowercase recipient emails with access to this portal"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the portal was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the portal was last updated"
+        }
+      },
+      "required": [
+        "id",
+        "ownerUid",
+        "ownerEmail",
+        "ownerName",
+        "companyName",
+        "companySubtitle",
+        "companyLogo",
+        "adminHash",
+        "supervisorHash",
+        "inchargeHash",
+        "rtdbUrl",
+        "rtdbProjectId",
+        "backupRtdbUrl",
+        "storageBucket",
+        "sharedWithEmails",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PortalShare": {
+      "title": "Portal Share Invitation",
+      "description": "Audit record of sharing a portal with a verified recipient email address.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Deterministic share ID combining portalId and recipient hash",
+          "minLength": 4,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "portalId": {
+          "type": "string",
+          "description": "Parent portal ID",
+          "minLength": 4,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "UID of the portal owner who created the share",
+          "minLength": 4,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Lowercase email of the portal owner",
+          "minLength": 5,
+          "maxLength": 254
+        },
+        "recipientEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified lowercase email of the recipient",
+          "minLength": 5,
+          "maxLength": 254
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company name snapshot for share audit log",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the share was granted"
+        }
+      },
+      "required": [
+        "id",
+        "portalId",
+        "ownerUid",
+        "ownerEmail",
+        "recipientEmail",
+        "companyName",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/portals/{portalId}": {
+      "schema": {
+        "$ref": "#/entities/Portal"
+      },
+      "description": "Multi-tenant attendance portal configurations owned by a user and shared with verified team emails."
+    },
+    "/portalShares/{shareId}": {
+      "schema": {
+        "$ref": "#/entities/PortalShare"
+      },
+      "description": "Individual email share records linked to a parent portal, created and revoked atomically with the parent portal sharedWithEmails list."
+    }
+  }
+}

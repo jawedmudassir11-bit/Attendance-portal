@@ -1,0 +1,668 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   APPLE LIQUID GLASS OPTICAL DESIGN SYSTEM (Crystal-Clear Refractive + iOS 27 Tinted)
+   - Clear Mode (Default): Crystal-clear optical glass with real SVG <feDisplacementMap>
+     perimeter refraction, prismatic edge caustics, glossy meniscus rim, and near-zero haze.
+   - Tinted Mode: Lightly frosted higher-contrast glass for dense data reading.
+   ========================================================================== */
+:root {
+  /* Pure Crystal-Clear Optical Refraction (Light - ZERO milky blur, real SVG refraction) */
+  --lg-backdrop: url(#lg-refract-clear) saturate(132%) contrast(1.04) brightness(1.04);
+  --lg-backdrop-pill: url(#lg-refract-pill) saturate(138%) contrast(1.05) brightness(1.05);
+  --lg-backdrop-orb: url(#lg-refract-orb) saturate(148%) contrast(1.06) brightness(1.06);
+  --lg-backdrop-heavy: blur(20px) saturate(155%) brightness(1.04);
+
+  /* Crystal-Clear Ultra-Transparent Optical Fills (NO milky frost in Clear mode) */
+  --lg-fill: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.01) 50%,
+    rgba(255, 255, 255, 0.09) 100%
+  );
+  --lg-fill-elevated: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.02) 52%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  --lg-fill-pill: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.02) 54%,
+    rgba(255, 255, 255, 0.11) 100%
+  );
+  --lg-fill-modal: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.80) 0%,
+    rgba(244, 249, 255, 0.70) 100%
+  );
+  --lg-fill-recessed: rgba(255, 255, 255, 0.24);
+  --lg-fill-thumb: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.68) 0%,
+    rgba(255, 255, 255, 0.28) 100%
+  );
+  --lg-fill-cta-glass: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.20) 0%,
+    rgba(255, 255, 255, 0.03) 52%,
+    rgba(219, 240, 255, 0.18) 100%
+  );
+  --lg-fill-control-bar: linear-gradient(
+    160deg,
+    rgba(9, 22, 46, 0.42) 0%,
+    rgba(12, 28, 56, 0.28) 55%,
+    rgba(16, 36, 72, 0.38) 100%
+  );
+
+  /* Thick Glossy Meniscus Fresnel Specular Rim (135deg bright glint + cyan/amber prism bounce) */
+  --lg-rim-gradient: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.62) 22%,
+    rgba(186, 230, 253, 0.22) 50%,
+    rgba(255, 255, 255, 0.32) 76%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+  --lg-rim-subtle: rgba(255, 255, 255, 0.68);
+
+  /* Optical Curved-Wall Inner Bevel & Caustic Rim Shadows */
+  --lg-inner-bevel:
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.88),
+    inset 0 -2px 4px rgba(10, 30, 68, 0.16),
+    inset 2px 0 3px rgba(255, 255, 255, 0.46),
+    inset -2px 0 3px rgba(186, 230, 253, 0.36),
+    inset 0 0 18px rgba(255, 255, 255, 0.12);
+  --lg-inner-recessed:
+    inset 0 1.5px 3px rgba(15, 35, 70, 0.12),
+    inset 0 -1px 1.5px rgba(255, 255, 255, 0.72);
+
+  /* Multi-layered Grounded Optical Shadows */
+  --lg-shadow:
+    0 2px 6px rgba(8, 22, 52, 0.12),
+    0 16px 38px -8px rgba(10, 38, 92, 0.22);
+  --lg-shadow-hover:
+    0 4px 12px rgba(8, 22, 52, 0.16),
+    0 24px 48px -10px rgba(12, 46, 114, 0.28);
+  --lg-shadow-pill:
+    0 3px 10px rgba(8, 22, 52, 0.14),
+    0 14px 32px -6px rgba(10, 42, 104, 0.24);
+  --lg-shadow-modal:
+    0 10px 24px rgba(6, 18, 44, 0.22),
+    0 36px 80px -12px rgba(8, 30, 78, 0.40);
+
+  /* Pointer-Tracked Live Specular Caustic Glint */
+  --lg-sheen-color: rgba(255, 255, 255, 0.56);
+  --lg-sheen-edge: rgba(147, 197, 253, 0.18);
+
+  /* Adaptive Text Halo over Crystal-Clear Glass */
+  --lg-hero-shadow: 0 1px 16px rgba(6, 18, 44, 0.45), 0 1px 2px rgba(6, 18, 44, 0.32);
+  --lg-card-text-halo: 0 1px 8px rgba(255, 255, 255, 0.55);
+}
+
+/* iOS 27 Tinted Glass Appearance (Light Mode — softly frosted higher readability) */
+:root[data-glass="tinted"] {
+  --lg-backdrop: blur(22px) saturate(165%) brightness(1.04);
+  --lg-backdrop-pill: blur(24px) saturate(175%) brightness(1.05);
+  --lg-backdrop-orb: blur(12px) saturate(165%) brightness(1.05);
+  --lg-fill: linear-gradient(155deg, rgba(255, 255, 255, 0.78) 0%, rgba(244, 248, 255, 0.66) 100%);
+  --lg-fill-elevated: linear-gradient(150deg, rgba(255, 255, 255, 0.86) 0%, rgba(245, 249, 255, 0.76) 100%);
+  --lg-fill-pill: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(242, 248, 255, 0.66) 100%);
+  --lg-fill-modal: linear-gradient(160deg, rgba(255, 255, 255, 0.94) 0%, rgba(246, 250, 255, 0.90) 100%);
+  --lg-fill-recessed: rgba(255, 255, 255, 0.74);
+  --lg-fill-cta-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.86) 0%, rgba(226, 240, 255, 0.72) 100%);
+}
+
+/* Dark Mode — Crystal-Clear Refractive Obsidian Liquid Glass */
+.dark {
+  --lg-backdrop: url(#lg-refract-clear) blur(0.8px) saturate(145%) contrast(1.06) brightness(0.96);
+  --lg-backdrop-pill: url(#lg-refract-pill) blur(0.5px) saturate(150%) contrast(1.06) brightness(0.98);
+  --lg-backdrop-orb: url(#lg-refract-orb) blur(0.3px) saturate(160%) contrast(1.08) brightness(1.02);
+  --lg-backdrop-heavy: blur(28px) saturate(160%) brightness(0.90);
+
+  --lg-fill: linear-gradient(
+    155deg,
+    rgba(16, 28, 54, 0.30) 0%,
+    rgba(8, 15, 32, 0.14) 52%,
+    rgba(22, 42, 80, 0.26) 100%
+  );
+  --lg-fill-elevated: linear-gradient(
+    150deg,
+    rgba(20, 34, 64, 0.40) 0%,
+    rgba(10, 18, 38, 0.22) 55%,
+    rgba(24, 46, 86, 0.34) 100%
+  );
+  --lg-fill-pill: linear-gradient(
+    180deg,
+    rgba(20, 36, 68, 0.34) 0%,
+    rgba(10, 18, 38, 0.18) 54%,
+    rgba(24, 44, 82, 0.28) 100%
+  );
+  --lg-fill-modal: linear-gradient(160deg, rgba(14, 23, 44, 0.84) 0%, rgba(8, 14, 30, 0.78) 100%);
+  --lg-fill-recessed: rgba(8, 15, 30, 0.44);
+  --lg-fill-thumb: linear-gradient(165deg, rgba(255, 255, 255, 0.28) 0%, rgba(147, 197, 253, 0.14) 100%);
+  --lg-fill-cta-glass: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(56, 189, 248, 0.12) 52%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+  --lg-fill-control-bar: linear-gradient(
+    160deg,
+    rgba(8, 16, 36, 0.44) 0%,
+    rgba(6, 12, 28, 0.28) 55%,
+    rgba(16, 32, 66, 0.38) 100%
+  );
+
+  --lg-rim-gradient: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(186, 230, 253, 0.36) 28%,
+    rgba(148, 163, 184, 0.12) 56%,
+    rgba(125, 211, 252, 0.56) 100%
+  );
+  --lg-rim-subtle: rgba(255, 255, 255, 0.24);
+
+  --lg-inner-bevel:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.44),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.50),
+    inset 1.5px 0 2px rgba(186, 230, 253, 0.24),
+    inset -1.5px 0 3px rgba(56, 189, 248, 0.22),
+    inset 0 0 20px rgba(255, 255, 255, 0.04);
+  --lg-inner-recessed:
+    inset 0 2px 4px rgba(0, 0, 0, 0.48),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.16);
+
+  --lg-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.46),
+    0 20px 44px -10px rgba(2, 10, 30, 0.70);
+  --lg-shadow-hover:
+    0 6px 16px rgba(0, 0, 0, 0.54),
+    0 28px 56px -12px rgba(6, 26, 70, 0.78);
+  --lg-shadow-pill:
+    0 4px 14px rgba(0, 0, 0, 0.48),
+    0 18px 38px -8px rgba(4, 16, 44, 0.70);
+  --lg-shadow-modal:
+    0 12px 30px rgba(0, 0, 0, 0.62),
+    0 38px 86px -14px rgba(2, 10, 32, 0.86);
+
+  --lg-sheen-color: rgba(224, 242, 254, 0.28);
+  --lg-sheen-edge: rgba(56, 189, 248, 0.14);
+
+  --lg-hero-shadow: 0 2px 18px rgba(0, 0, 0, 0.65);
+  --lg-card-text-halo: 0 1px 10px rgba(0, 0, 0, 0.55);
+}
+
+/* iOS 27 Tinted Glass Appearance (Dark Mode) */
+.dark[data-glass="tinted"] {
+  --lg-backdrop: blur(28px) saturate(145%) brightness(0.88);
+  --lg-backdrop-pill: blur(30px) saturate(150%) brightness(0.90);
+  --lg-backdrop-orb: blur(14px) saturate(150%) brightness(0.92);
+  --lg-fill: linear-gradient(155deg, rgba(15, 23, 42, 0.78) 0%, rgba(10, 17, 34, 0.70) 100%);
+  --lg-fill-elevated: linear-gradient(150deg, rgba(20, 30, 54, 0.84) 0%, rgba(12, 20, 38, 0.78) 100%);
+  --lg-fill-pill: linear-gradient(180deg, rgba(18, 28, 52, 0.80) 0%, rgba(11, 19, 36, 0.72) 100%);
+  --lg-fill-modal: linear-gradient(160deg, rgba(14, 22, 42, 0.94) 0%, rgba(9, 15, 30, 0.90) 100%);
+  --lg-fill-recessed: rgba(8, 14, 28, 0.74);
+  --lg-fill-cta-glass: linear-gradient(145deg, rgba(30, 58, 138, 0.72) 0%, rgba(15, 23, 42, 0.76) 100%);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: #dbeafe;
+  }
+
+  .dark body {
+    background-color: #050a18;
+  }
+
+  code, pre, .font-mono, .tabular-nums {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ==========================================================================
+   CRYSTAL-CLEAR LIQUID GLASS OPTICAL PRIMITIVES
+   ========================================================================== */
+.lg-surface {
+  position: relative;
+  background: var(--lg-fill);
+  -webkit-backdrop-filter: var(--lg-backdrop);
+  backdrop-filter: var(--lg-backdrop);
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow);
+  isolation: isolate;
+}
+
+/* 1.5px Glossy Curved Meniscus Fresnel Specular Rim Border */
+.lg-surface::before,
+.lg-pill::before,
+.lg-orb::before,
+.lg-modal::before,
+.lg-btn-glass::before,
+.lg-control-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--lg-rim-gradient);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Dynamic Pointer-Tracked Specular Caustic Sheen Overlay */
+.lg-surface-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--lg-mx, 22%) var(--lg-my, 12%),
+    var(--lg-sheen-color) 0%,
+    var(--lg-sheen-edge) 34%,
+    transparent 68%
+  );
+  opacity: var(--lg-sheen-opacity, 0.65);
+  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lg-surface-sheen:hover::after {
+  opacity: 1;
+}
+
+.lg-surface-elevated {
+  background: var(--lg-fill-elevated);
+}
+
+.lg-surface-interactive {
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.lg-surface-interactive:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow-hover);
+}
+
+/* Detached Floating Crystal Pill Navigation / Bar */
+.lg-pill {
+  position: relative;
+  border-radius: 9999px;
+  background: var(--lg-fill-pill);
+  -webkit-backdrop-filter: var(--lg-backdrop-pill);
+  backdrop-filter: var(--lg-backdrop-pill);
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow-pill);
+  isolation: isolate;
+}
+
+/* Spherical Crystal-Clear Glass Orb (Matches Home Orb Optical Reference) */
+.lg-orb {
+  position: relative;
+  border-radius: 9999px;
+  background: radial-gradient(
+    130% 130% at 28% 20%,
+    rgba(255, 255, 255, 0.36) 0%,
+    rgba(255, 255, 255, 0.04) 48%,
+    rgba(186, 230, 253, 0.18) 84%,
+    rgba(255, 255, 255, 0.34) 100%
+  );
+  -webkit-backdrop-filter: var(--lg-backdrop-orb);
+  backdrop-filter: var(--lg-backdrop-orb);
+  box-shadow:
+    inset 0 3px 5px rgba(255, 255, 255, 0.95),
+    inset 0 -3px 6px rgba(10, 32, 72, 0.28),
+    inset 3px 0 5px rgba(255, 255, 255, 0.45),
+    inset -3px 0 6px rgba(125, 211, 252, 0.35),
+    0 12px 32px -6px rgba(8, 24, 62, 0.32);
+  isolation: isolate;
+}
+
+/* High-Contrast Smoked Sapphire Liquid Glass Control Bar (Workspace Header) */
+.lg-control-bar {
+  position: relative;
+  background: var(--lg-fill-control-bar);
+  -webkit-backdrop-filter: var(--lg-backdrop-pill);
+  backdrop-filter: var(--lg-backdrop-pill);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.48),
+    inset 0 -1.5px 3px rgba(0, 0, 0, 0.35),
+    var(--lg-shadow-pill);
+  isolation: isolate;
+}
+
+/* Gliding Refractive Pill Thumb (Tabs & Sun/Moon Capsule Toggle) */
+.lg-pill-thumb {
+  background: var(--lg-fill-thumb);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.92),
+    inset 0 -1px 2px rgba(15, 35, 70, 0.10),
+    0 3px 10px rgba(15, 40, 90, 0.18),
+    0 0 0 0.5px rgba(255, 255, 255, 0.72);
+}
+
+.dark .lg-pill-thumb {
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.48),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.38),
+    0 3px 12px rgba(2, 10, 32, 0.58),
+    0 0 0 0.5px rgba(186, 230, 253, 0.42);
+}
+
+/* Luminous Crystal-Clear Glass CTA Pill Button */
+.lg-btn-glass {
+  position: relative;
+  background: var(--lg-fill-cta-glass);
+  -webkit-backdrop-filter: var(--lg-backdrop-pill);
+  backdrop-filter: var(--lg-backdrop-pill);
+  box-shadow:
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.92),
+    inset 0 -2px 4px rgba(12, 42, 98, 0.16),
+    0 4px 14px rgba(14, 52, 124, 0.22),
+    0 14px 32px -6px rgba(14, 62, 148, 0.24);
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 200ms ease;
+  isolation: isolate;
+}
+
+.lg-btn-glass:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 0 -2px 4px rgba(12, 42, 98, 0.18),
+    0 6px 20px rgba(24, 92, 214, 0.28),
+    0 18px 40px -8px rgba(14, 62, 148, 0.30);
+}
+
+.lg-btn-glass:active {
+  transform: scale(0.96);
+}
+
+/* Primary Electric Sapphire Liquid Action Pill */
+.lg-btn-primary {
+  position: relative;
+  background: linear-gradient(155deg, rgba(59, 130, 246, 0.92) 0%, rgba(29, 78, 216, 0.94) 100%);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.52),
+    inset 0 -1.5px 2.5px rgba(10, 24, 70, 0.32),
+    0 6px 18px -4px rgba(37, 99, 235, 0.48);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 180ms ease;
+}
+
+.lg-btn-primary:hover {
+  filter: brightness(1.07);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.62),
+    0 10px 26px -6px rgba(37, 99, 235, 0.56);
+}
+
+.lg-btn-primary:active {
+  transform: scale(0.96);
+}
+
+/* Elastic Modal / Sheet / Popover Shell */
+.lg-modal {
+  position: relative;
+  background: var(--lg-fill-modal);
+  -webkit-backdrop-filter: var(--lg-backdrop-heavy);
+  backdrop-filter: var(--lg-backdrop-heavy);
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow-modal);
+  isolation: isolate;
+}
+
+/* Recessed Glass Input Field */
+.lg-input {
+  background: var(--lg-fill-recessed);
+  box-shadow: var(--lg-inner-recessed);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.dark .lg-input {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.lg-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.78);
+  box-shadow:
+    var(--lg-inner-recessed),
+    0 0 0 3px rgba(59, 130, 246, 0.22);
+}
+
+/* Curved Top-Edge Glossy Meniscus Highlight + Prismatic Corner Caustics */
+.lg-edge-lens {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      90% 42% at 50% 0%,
+      rgba(255, 255, 255, 0.52) 0%,
+      rgba(255, 255, 255, 0.10) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      60% 34% at 88% 96%,
+      rgba(186, 230, 253, 0.28) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      48% 28% at 10% 94%,
+      rgba(254, 215, 170, 0.20) 0%,
+      transparent 68%
+    );
+  opacity: 0.92;
+  z-index: 0;
+}
+
+.dark .lg-edge-lens {
+  background:
+    radial-gradient(
+      90% 40% at 50% 0%,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(125, 211, 252, 0.06) 44%,
+      transparent 72%
+    ),
+    radial-gradient(
+      55% 32% at 88% 96%,
+      rgba(56, 189, 248, 0.20) 0%,
+      transparent 68%
+    );
+}
+
+/* Adaptive Contrast Halo for Text over Vivid Wallpaper / Crystal Glass */
+.lg-hero-text {
+  text-shadow: var(--lg-hero-shadow);
+}
+
+.lg-glass-text-halo {
+  text-shadow: var(--lg-card-text-halo);
+}
+
+/* ==========================================================================
+   AUTOMATIC WORKSPACE LIQUID GLASS HARMONIZATION
+   Harmonizes nested tab cards, tables, and inputs across all workspace tabs
+   so crystal-clear refraction & curved glass borders stay unified everywhere
+   without altering business logic or breaking print/PDF output.
+   ========================================================================== */
+.lg-workspace-content > div > div[class*="bg-white"],
+.lg-workspace-content > div > section[class*="bg-white"],
+.lg-workspace-content > div > form[class*="bg-white"],
+.lg-workspace-content > div > div > div[class*="bg-white"][class*="rounded-"],
+.lg-workspace-content > div > div > section[class*="bg-white"][class*="rounded-"] {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(246, 250, 255, 0.44) 100%
+  );
+  -webkit-backdrop-filter: var(--lg-backdrop);
+  backdrop-filter: var(--lg-backdrop);
+  border-color: rgba(255, 255, 255, 0.72);
+  border-radius: 24px;
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow);
+}
+
+.dark .lg-workspace-content > div > div[class*="dark:bg-slate-900"],
+.dark .lg-workspace-content > div > section[class*="dark:bg-slate-900"],
+.dark .lg-workspace-content > div > form[class*="dark:bg-slate-900"],
+.dark .lg-workspace-content > div > div > div[class*="dark:bg-slate-900"][class*="rounded-"],
+.dark .lg-workspace-content > div > div > section[class*="dark:bg-slate-900"][class*="rounded-"] {
+  background: linear-gradient(
+    160deg,
+    rgba(14, 23, 44, 0.64) 0%,
+    rgba(9, 16, 34, 0.48) 100%
+  );
+  -webkit-backdrop-filter: var(--lg-backdrop);
+  backdrop-filter: var(--lg-backdrop);
+  border-color: rgba(255, 255, 255, 0.22);
+  border-radius: 24px;
+  box-shadow: var(--lg-inner-bevel), var(--lg-shadow);
+}
+
+:root[data-glass="tinted"] .lg-workspace-content > div > div[class*="bg-white"],
+:root[data-glass="tinted"] .lg-workspace-content > div > section[class*="bg-white"],
+:root[data-glass="tinted"] .lg-workspace-content > div > form[class*="bg-white"],
+:root[data-glass="tinted"] .lg-workspace-content > div > div > div[class*="bg-white"][class*="rounded-"] {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.dark[data-glass="tinted"] .lg-workspace-content > div > div[class*="dark:bg-slate-900"],
+.dark[data-glass="tinted"] .lg-workspace-content > div > section[class*="dark:bg-slate-900"],
+.dark[data-glass="tinted"] .lg-workspace-content > div > form[class*="dark:bg-slate-900"],
+.dark[data-glass="tinted"] .lg-workspace-content > div > div > div[class*="dark:bg-slate-900"][class*="rounded-"] {
+  background: rgba(15, 23, 42, 0.88);
+}
+
+.lg-workspace-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.no-glass),
+.lg-workspace-content select:not(.no-glass),
+.lg-workspace-content textarea:not(.no-glass) {
+  background-color: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--lg-inner-recessed);
+}
+
+.dark .lg-workspace-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.no-glass),
+.dark .lg-workspace-content select:not(.no-glass),
+.dark .lg-workspace-content textarea:not(.no-glass) {
+  background-color: rgba(12, 20, 38, 0.62);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Graceful fallback for environments without backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg-surface,
+  .lg-pill,
+  .lg-modal,
+  .lg-btn-glass {
+    background: rgba(255, 255, 255, 0.92);
+  }
+  .dark .lg-surface,
+  .dark .lg-pill,
+  .dark .lg-modal,
+  .dark .lg-btn-glass {
+    background: rgba(15, 23, 42, 0.92);
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .lg-surface-interactive,
+  .lg-btn-glass,
+  .lg-btn-primary,
+  .lg-surface-sheen::after {
+    transition: none;
+  }
+  .lg-surface-interactive:hover,
+  .lg-btn-glass:active,
+  .lg-btn-primary:active {
+    transform: none;
+  }
+}
+
+/* Subtle Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+/* ==========================================================================
+   PRINT / PDF REPORT PRESERVATION (Crisp white paper output for official slips)
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .no-print {
+    display: none;
+  }
+
+  .lg-surface,
+  .lg-pill,
+  .lg-modal,
+  .lg-workspace-content > div > div[class*="bg-white"] {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-color: #cbd5e1;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  .page-break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}

@@ -1,0 +1,215 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 0: Default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global hardened primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email is string
+        && request.auth.token.email.size() >= 5
+        && request.auth.token.email.size() <= 254;
+    }
+
+    function authEmailLower() {
+      return request.auth.token.email.lower();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 4 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidSharedEmailList(emails) {
+      return emails is list
+        && emails.size() <= 50
+        && (emails.size() == 0 || (emails[0] is string && emails[0].size() >= 5 && emails[0].size() <= 254));
+    }
+
+    function isValidPortal(data, portalId) {
+      return data.keys().hasAll([
+          'id',
+          'ownerUid',
+          'ownerEmail',
+          'ownerName',
+          'companyName',
+          'companySubtitle',
+          'companyLogo',
+          'adminHash',
+          'supervisorHash',
+          'inchargeHash',
+          'rtdbUrl',
+          'rtdbProjectId',
+          'backupRtdbUrl',
+          'storageBucket',
+          'sharedWithEmails',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerUid',
+          'ownerEmail',
+          'ownerName',
+          'companyName',
+          'companySubtitle',
+          'companyLogo',
+          'adminHash',
+          'supervisorHash',
+          'inchargeHash',
+          'rtdbUrl',
+          'rtdbProjectId',
+          'backupRtdbUrl',
+          'storageBucket',
+          'sharedWithEmails',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id == portalId
+        && data.id is string && data.id.size() >= 4 && data.id.size() <= 64 && data.id.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerUid is string && data.ownerUid.size() >= 4 && data.ownerUid.size() <= 128 && data.ownerUid.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerUid == request.auth.uid
+        && data.ownerEmail is string && data.ownerEmail.size() >= 5 && data.ownerEmail.size() <= 254
+        && data.ownerEmail == authEmailLower()
+        && data.ownerName is string && data.ownerName.size() <= 100
+        && data.companyName is string && data.companyName.size() >= 1 && data.companyName.size() <= 100
+        && data.companySubtitle is string && data.companySubtitle.size() <= 200
+        && data.companyLogo is string && data.companyLogo.size() <= 260000
+        && data.adminHash is string && data.adminHash.size() >= 16 && data.adminHash.size() <= 128
+        && data.supervisorHash is string && data.supervisorHash.size() >= 16 && data.supervisorHash.size() <= 128
+        && data.inchargeHash is string && data.inchargeHash.size() >= 16 && data.inchargeHash.size() <= 128
+        && data.rtdbUrl is string && data.rtdbUrl.size() >= 12 && data.rtdbUrl.size() <= 300
+        && data.rtdbProjectId is string && data.rtdbProjectId.size() >= 2 && data.rtdbProjectId.size() <= 100
+        && data.backupRtdbUrl is string && data.backupRtdbUrl.size() <= 300
+        && data.storageBucket is string && data.storageBucket.size() <= 200
+        && isValidSharedEmailList(data.sharedWithEmails)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidPortalShare(data, shareId) {
+      return data.keys().hasAll([
+          'id',
+          'portalId',
+          'ownerUid',
+          'ownerEmail',
+          'recipientEmail',
+          'companyName',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'portalId',
+          'ownerUid',
+          'ownerEmail',
+          'recipientEmail',
+          'companyName',
+          'createdAt'
+        ])
+        && data.id == shareId
+        && isValidId(data.id)
+        && data.portalId is string && data.portalId.size() >= 4 && data.portalId.size() <= 64 && data.portalId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerUid is string && data.ownerUid.size() >= 4 && data.ownerUid.size() <= 128 && data.ownerUid.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerUid == request.auth.uid
+        && data.ownerEmail is string && data.ownerEmail.size() >= 5 && data.ownerEmail.size() <= 254
+        && data.ownerEmail == authEmailLower()
+        && data.recipientEmail is string && data.recipientEmail.size() >= 5 && data.recipientEmail.size() <= 254
+        && data.recipientEmail != authEmailLower()
+        && data.companyName is string && data.companyName.size() >= 1 && data.companyName.size() <= 100
+        && data.createdAt is timestamp;
+    }
+
+    match /portals/{portalId} {
+      allow get: if isVerifiedEmail()
+        && isValidId(portalId)
+        && (existing().ownerUid == request.auth.uid || authEmailLower() in existing().sharedWithEmails);
+
+      allow list: if isVerifiedEmail()
+        && (existing().ownerUid == request.auth.uid || authEmailLower() in existing().sharedWithEmails);
+
+      allow create: if isVerifiedEmail()
+        && isValidId(portalId)
+        && isValidPortal(incoming(), portalId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedEmail()
+        && isValidId(portalId)
+        && isValidPortal(incoming(), portalId)
+        && existing().ownerUid == request.auth.uid
+        && incoming().id == existing().id
+        && incoming().ownerUid == existing().ownerUid
+        && incoming().ownerEmail == existing().ownerEmail
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action 1: Update company branding (name, logo, subtitle)
+          incoming().diff(existing()).affectedKeys().hasOnly(['companyName', 'companySubtitle', 'companyLogo', 'updatedAt'])
+          // Action 2: Rotate role passwords
+          || incoming().diff(existing()).affectedKeys().hasOnly(['adminHash', 'supervisorHash', 'inchargeHash', 'updatedAt'])
+          // Action 3: Update user's Firebase Realtime Database settings
+          || incoming().diff(existing()).affectedKeys().hasOnly(['rtdbUrl', 'rtdbProjectId', 'backupRtdbUrl', 'storageBucket', 'updatedAt'])
+          // Action 4: Manage verified shared recipient email list
+          || incoming().diff(existing()).affectedKeys().hasOnly(['sharedWithEmails', 'updatedAt'])
+          // Action 5: Full portal settings update by owner
+          || incoming().diff(existing()).affectedKeys().hasOnly([
+            'companyName',
+            'companySubtitle',
+            'companyLogo',
+            'adminHash',
+            'supervisorHash',
+            'inchargeHash',
+            'rtdbUrl',
+            'rtdbProjectId',
+            'backupRtdbUrl',
+            'storageBucket',
+            'updatedAt'
+          ])
+        );
+
+      allow delete: if isVerifiedEmail()
+        && isValidId(portalId)
+        && existing().ownerUid == request.auth.uid;
+    }
+
+    match /portalShares/{shareId} {
+      allow get: if isVerifiedEmail()
+        && isValidId(shareId)
+        && (existing().ownerUid == request.auth.uid || existing().recipientEmail == authEmailLower());
+
+      allow list: if isVerifiedEmail()
+        && (existing().ownerUid == request.auth.uid || existing().recipientEmail == authEmailLower());
+
+      allow create: if isVerifiedEmail()
+        && isValidId(shareId)
+        && isValidPortalShare(incoming(), shareId)
+        && incoming().createdAt == request.time
+        && exists(/databases/$(database)/documents/portals/$(incoming().portalId))
+        && get(/databases/$(database)/documents/portals/$(incoming().portalId)).data.ownerUid == request.auth.uid
+        && incoming().recipientEmail in getAfter(/databases/$(database)/documents/portals/$(incoming().portalId)).data.sharedWithEmails;
+
+      allow update: if false;
+
+      allow delete: if isVerifiedEmail()
+        && isValidId(shareId)
+        && resource != null
+        && existing().ownerUid == request.auth.uid;
+    }
+  }
+}
